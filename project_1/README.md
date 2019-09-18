@@ -1,20 +1,28 @@
 Quan Sun
 
-# Background and Data Source:
+# Background and Data Source
 
 This dataset is provided by Urban Ministries of Durham who connect with the community to end homelessness and fight poverty by offering food, shelter and a future to neighbors in need. This data contains 18 columns, including the information of data, client ID and the amount of different kinds of help they provide for different clients. 
 
 
-# Questions to answer:
+# Questions to answer
 
 1. Show the change over time for:
+
 *(1) the number of bus tickets
+
 (2) Food Pounds
+
 (3) Clothing Items
+
 (4) Diapers
+
 (5) School Kits
+
 (6) Hygiene Kits
+
 *(7) Financial Support
+
 by plots to determine which needs are increasing/decreasing over time to make UMD better prepare for the items.
 
 * are not provided any more, but could still be shown.
@@ -31,13 +39,13 @@ by sorting data by corresponding column and then unique the column.
 
 5. Show how the number of people that food provide for affects the needs of other help (If possible).
 
-# Three useful variables:
+# Three useful variables
  
 Date
 Client File Number
 Food Provided for
 
-# Possible analysis approach:
+# Possible analysis approach
 
 1. Association Test: Test the association between “food provide for” and other variables.  
 
