@@ -1,0 +1,382 @@
+---
+title: "Project1"
+author: "Quan Sun"
+date: "9/23/2019"
+output: html_document
+---
+
+# Background and Data Source
+
+This dataset is provided by Urban Ministries of Durham who connect with the community to end homelessness and fight poverty by offering food, shelter and a future to neighbors in need. This data contains 18 columns, including the information of data, client ID and the amount of different kinds of help they provide for different clients. 
+
+
+# Questions and Answers
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+mydata = read_tsv("/Users/apple/Documents/GitHub/bios611-projects-fall-2019-Quanbaby/project_1/data/UMD_Services_Provided_20190719.tsv")
+rawdata = mydata #back up the raw data
+```
+
+## 1. Show the change over time for
+### (1) the number of bus tickets:
+
+Preprocess data: After reading the data we can see that the dataset is really a mess. Thus we must preprocess to make it tidy. Change the format of Date first and then sort by date.
+```{r}
+## arrange by Date
+Date1 = as.Date(mydata$Date,format = "%m/%d/%Y")
+mydata$Date = Date1
+mydata_sort = mydata %>%
+  arrange(Date)
+```
+
+```{r}
+mydata_sort %>%  
+  select(Date, `Bus Tickets (Number of)`) %>%
+  filter(is.na(`Bus Tickets (Number of)`)==F) %>%
+  group_by(Date) %>%
+  summarise(day_tickets = sum(`Bus Tickets (Number of)`)) %>%
+  ggplot(aes(x=Date, y=day_tickets)) + 
+  geom_point()
+```
+
+From the scatter plot we can see that except for the two outliers, the points gathered in the time before 2004. The scatter plot is consistent with the note that the bus tickets service was ended. We are not interested in it any more.
+
+### (2) food pounds:
+
+```{r}
+mydata_sort %>%  
+  select(Date, `Food Pounds`) %>%
+  filter(is.na(`Food Pounds`)==F) %>%
+  group_by(Date) %>%
+  summarise(Food_total = sum(`Food Pounds`)) %>%
+  ggplot(aes(x=Date, y=Food_total)) + 
+  geom_point()
+```
+
+From the results we can see that there's an outlier taking extremly high value which is more than $4 \times 10^5$. It's most likely a typo since it's impossible to gave out more than $4 \times 10^5$ pounds food one day. What's more, we have noticed that there are some values of date which are beyong 2020 (in the future!). Also we don't interested in what happened before 1980s, thus remove those outliers and zoom in the plot after 2000. We have to re-do the scatter plot to gain more information.
+
+```{r}
+mydata_sort %>%  
+  select(Date, `Food Pounds`) %>%
+  filter(is.na(`Food Pounds`)==F) %>%
+  filter(Date <= as.Date("09/11/2019",format = "%m/%d/%Y" )) %>%
+  filter(Date >= as.Date("1/1/2005",format = "%m/%d/%Y" )) %>%
+  group_by(Date) %>%
+  summarise(Food_total = sum(`Food Pounds`)) %>%
+  filter(Food_total != max(Food_total)) %>%
+  ggplot(aes(x=Date, y=Food_total)) + 
+  geom_point()
+```
+
+We found there are still some high values from the scatter plots. Then we handle with the data from two aspects. For the outliers, we want to know what made it outstanding, thus list all the values which are more than 2000. For the relatively "normal" points, we want to know the tendency.
+
+```{r}
+# list the date of outliers
+mydata_sort %>%  
+  select(Date, `Food Pounds`) %>%
+  filter(is.na(`Food Pounds`)==F) %>%
+  filter(Date <= as.Date("09/11/2019",format = "%m/%d/%Y" )) %>%
+  filter(Date >= as.Date("1/1/2005",format = "%m/%d/%Y" )) %>%
+  group_by(Date) %>%
+  summarise(Food_total = sum(`Food Pounds`)) %>%
+  filter(Food_total != max(Food_total)) %>%
+  filter(Food_total >= 2000)
+
+# fit the points with curve
+mydata_sort %>%  
+  select(Date, `Food Pounds`) %>%
+  filter(is.na(`Food Pounds`)==F) %>%
+  filter(Date <= as.Date("09/11/2019",format = "%m/%d/%Y" )) %>%
+  filter(Date >= as.Date("1/1/2005",format = "%m/%d/%Y" )) %>%
+  group_by(Date) %>%
+  summarise(Food_total = sum(`Food Pounds`)) %>%
+  filter(Food_total != max(Food_total)) %>%
+  filter(Food_total < 2000) %>%
+  ggplot(aes(x=Date, y=Food_total)) + 
+  geom_point() +
+  geom_smooth()
+
+```
+
+For the dates listed above, we don't know exactly what happened on those days, thus we don't know whether they were produced because of a typo or because the days were special (any catastrophes which we didn't find any references or the promotion days of UMD). 
+
+From the scatter plot, we can see the needs of the amount of food basically increased before 2015 and slightly decreased after 2015. I think one possible explanation is that UMD routinely documented the data after 2005 (from which the points became dense) and more people came for help as UMD promoted their service. Due to the excellent job that UMD did, the amount food to help people in need has been decreasing after 2015, which means the situation of homeless people is getting better and better. 
+
+### (3) clothing items:
+```{r}
+mydata_sort %>%  
+  select(Date, `Clothing Items`) %>%
+  filter(is.na(`Clothing Items`)==F) %>%
+  filter(Date <= as.Date("09/11/2019",format = "%m/%d/%Y" )) %>%
+  filter(Date >= as.Date("1/1/2005",format = "%m/%d/%Y" )) %>%
+  group_by(Date) %>%
+  summarise(cloth_total = sum(`Clothing Items`)) %>%
+  ggplot(aes(x=Date, y=cloth_total)) + 
+  geom_point() +
+  geom_smooth()
+```
+
+We did the same thing for clothing items as for food pounds. It showed that the change of clothing items was roughly the same as that of food pounds which increased before 2010, fluctuated between 2010-2015 and then decreased after 2015. But the intensity is was not as high as that of food pounds. It supported my opinion brought up before. 
+
+### (4) diapers:
+```{r}
+mydata_sort %>%  
+  select(Date, Diapers) %>%
+  filter(is.na(Diapers)==F) %>%
+  group_by(Date) %>%
+  summarise(diapers_total = sum(Diapers)) %>%
+  ggplot(aes(x=Date, y=diapers_total)) + 
+  geom_point()
+# remove outliers
+mydata_sort %>%  
+  select(Date, Diapers) %>%
+  filter(is.na(Diapers)==F) %>%
+  group_by(Date) %>%
+  summarise(diapers_total = sum(Diapers)) %>%
+  filter(diapers_total != max(diapers_total)) %>%
+  ggplot(aes(x=Date, y=diapers_total)) + 
+  geom_point()
+```
+
+### (5) school Kits:
+```{r}
+mydata_sort %>%  
+  select(Date, `School Kits`) %>%
+  filter(is.na(`School Kits`)==F) %>%
+  group_by(Date) %>%
+  summarise(school_total = sum(`School Kits`)) %>%
+  ggplot(aes(x=Date, y=school_total)) + 
+  geom_point()
+```
+
+### (6) Hygiene Kits:
+```{r}
+mydata_sort %>%  
+  select(Date, `Hygiene Kits`) %>%
+  filter(is.na(`Hygiene Kits`)==F) %>%
+  group_by(Date) %>%
+  summarise(hygiene_total = sum(`Hygiene Kits`)) %>%
+  ggplot(aes(x=Date, y=hygiene_total)) + 
+  geom_point()
+```
+
+(5)-(7) shows the change over time for diapers, school kits and hygiene kits which were in lower needs than foods and clothes. Thus these three variables could not represent the whole population of people in need. We are no longer interested in this.
+
+
+### (7) financial support:
+```{r}
+mydata_sort %>%  
+  select(Date, `Financial Support`) %>%
+  filter(is.na(`Financial Support`)==F) %>%
+  group_by(Date) %>%
+  summarise(finance_total = sum(`Financial Support`)) %>%
+  ggplot(aes(x=Date, y=finance_total)) + 
+  geom_point()
+```
+
+Zoom in the plot of year 2000-2019, remove the "future dates" and plot non-zero points
+```{r}
+mydata_sort %>%  
+  select(Date, `Financial Support`) %>%
+  filter(is.na(`Financial Support`)==F) %>%
+  filter(Date <= as.Date("09/11/2019",format = "%m/%d/%Y" )) %>%
+  filter(Date >= as.Date("1/1/2005",format = "%m/%d/%Y" )) %>%
+  group_by(Date) %>%
+  summarise(finance_total = sum(`Financial Support`)) %>%
+  filter(finance_total!=0) %>%
+  ggplot(aes(x=Date, y=finance_total)) + 
+  geom_point()
+```
+
+Since financial support was discontinued which is also indicated from the plot above, we won't waste much time on it.
+
+From the scatter plots above, we could see that foods and clothes have most observations, which indicated that these two are the most needed. It's consistent with the commen sense that they were for basic life.
+
+## 2. People (family) coming most frequently and examples of some specific families.
+### Who came most often.
+
+First we group the data by client file number which is the ID of every family. Then summarise the count of every family and sort by decreasing order. Then we could get the results below.
+```{r}
+mydata_sort %>%
+  group_by(`Client File Number`) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n))
+```
+
+Take client 3502 and 805 as examples. 
+
+```{r}
+client3502 = mydata_sort %>%
+  filter(`Client File Number`==3502) %>%
+  arrange(Date) 
+ggplot(client3502, aes(x=Date,y=1)) + 
+  geom_point()
+
+client3502_interval = client3502$Date[-1] - client3502$Date[-length(client3502$Date)]
+plot(x=1:length(client3502_interval), y=client3502_interval)
+# plot(x=1:(length(client3502_interval)-1), y=client3502_interval[-1])
+# remove the first point which was an outlier
+```
+
+
+```{r}
+client805 = mydata_sort %>%
+  filter(`Client File Number`==805) %>%
+  filter(Date >= as.Date("1/1/2000",format = "%m/%d/%Y" )) %>%
+  arrange(Date)
+ggplot(client805, aes(x=Date,y=1)) + 
+  geom_point()
+
+client805_interval = client805$Date[-1] - client805$Date[-length(client805$Date)]
+plot(x=1:(length(client805_interval)), y=client805_interval)
+```
+
+
+They both have come since more than 10 years ago. It suggests that they have been going through a hard time for really long and they may need further help.
+
+### Who came most recently.
+
+```{r}
+mydata_sort %>%
+  arrange(desc(Date)) %>%
+  filter(Date <= as.Date("09/11/2019",format = "%m/%d/%Y" ))
+```
+
+Take the most recent one which is client 814 for an example.
+```{r}
+client814 = mydata_sort %>%
+  filter(`Client File Number`==814) %>%
+  arrange(Date)
+ggplot(client814, aes(x=Date,y=1)) + 
+  geom_point()
+
+client814_interval = client814$Date[-1] - client814$Date[-length(client814$Date)]
+plot(x=1:(length(client814_interval)), y=client814_interval)
+```
+
+From the plot we can see that this client came frequently in small periods of time which were occasionally took place with relatviely long intervals. But it seems that his/her life is becoming worse since the length of the interval is becoming shorter. From these examples, we can show the specific situation of every person/family to give them specific care.
+
+
+## 3. Find
+### (1) whom have contributed to UMD financially:
+
+```{r}
+mydata_sort %>%
+  arrange(`Payer of Support`) %>%
+  filter(is.na(`Payer of Support`)==F) %>%
+  group_by(`Payer of Support`) %>%
+  summarise(n = n())
+```
+
+We could thank thoes people/organizations who have donated money to support UMD and people in need. 
+
+### (2) what type of bills people have to pay: 
+
+```{r}
+mydata_sort %>%
+  arrange(`Type of Bill Paid`) %>%
+  filter(is.na(`Type of Bill Paid`)==F) %>%
+  # case insensitive
+  group_by(Category = stringi::stri_trans_totitle(`Type of Bill Paid`)) %>%
+  summarise(n = n())
+```
+Though we have apply the case insensitive condition, the data is still a little bit messy since there are different expressions of the same thing, for example, "Greyhound", "Bus fare", "one way bus ticket", etc., all represents bus tickets. But the table is still useful for references. 
+
+## 4. Show how the number of people that food provided for affects the needs of other help (If it does).
+
+### Food pounds V.S. Food Provided for:
+```{r}
+mydata_sort %>%
+  filter(`Food Provided for` > 0) %>%
+  filter(`Food Pounds` > 0 ) %>%
+  filter(`Food Pounds` != max(`Food Pounds`)) %>%
+  ggplot(aes(x=`Food Provided for`,y=`Food Pounds`)) +
+  geom_point()
+```
+
+Remove all the single points which were likely to be typoes. 
+```{r}
+mydata_sort %>%
+  filter(`Food Provided for` > 0 & `Food Provided for` < 200) %>%
+  filter(`Food Pounds` > 0 & `Food Pounds` < 1000) %>%
+  filter(`Food Pounds` != max(`Food Pounds`)) %>%
+  ggplot(aes(x=`Food Provided for`,y=`Food Pounds`)) +
+  geom_point() 
+```
+
+From the scatter points we can see that the two variables are positively related with each other. For most people, the increasing ratio of the two variables is roughly the same (refer to all the gathering points in the left downside corner). But there are two different patterns when the number of "food provided for" and the number of "food pounds" increased. Maybe some people wanted to get more food at a time to save for future needs, so that they can come less often. A possible reason for another pattern is people wanted to get less food at a time but came more often.
+
+#### Average pounds of food per person per visit. 
+We then care about the average pounds of food that one person needs at a time.
+```{r}
+averg_food = mydata_sort %>%
+  select(Date,`Food Pounds`,`Food Provided for`) %>%
+  filter(`Food Provided for` > 0 ) %>%
+  filter(`Food Pounds` > 0 ) %>%
+  filter(`Food Pounds` != max(`Food Pounds`)) %>%
+  mutate(mean_food = `Food Pounds`/`Food Provided for`) %>%
+  filter(mean_food < 500) %>%
+  filter(Date > as.Date("1/1/2000",format = "%m/%d/%Y" )) %>%
+  filter(Date < as.Date("9/11/2019",format = "%m/%d/%Y" ))
+ggplot(averg_food, aes(Date,mean_food,)) +
+  geom_point() + 
+  geom_smooth()
+
+mean(averg_food$mean_food)
+
+```
+
+From the plot above we know, though there are quite a few outliers, most people came to get roughtly the same average pounds of food for one person (~10 pounds). This information is useful to UMD for future preparation of food.
+
+
+
+### Clothing Items V.S. Food Provided for:
+```{r}
+mydata_sort %>%
+  filter(`Clothing Items` > 0) %>%
+  filter(`Food Provided for` > 0 ) %>%
+  ggplot(aes(x=`Food Provided for`,y=`Clothing Items`)) +
+  geom_point()
+```
+
+```{r}
+mydata_sort %>%
+  filter(`Clothing Items` > 0) %>%
+  filter(`Food Provided for` > 0 & `Food Provided for` < 100) %>%
+  ggplot(aes(x=`Food Provided for`,y=`Clothing Items`)) +
+  geom_point()
+```
+
+This plot didn't show the quite the same as the previous one, especially in the gathering zone. It seems that there's not a strong relationship between "Clothing items" and "Food Provided for" since different people may have different needs for clothes.
+
+#### Average items of clothing per person per visit. 
+Similarly, we want to know the average items of clothes that one person needs at a time.
+```{r}
+averg_clothes = mydata_sort %>%
+  select(Date,`Clothing Items`,`Food Provided for`) %>%
+  filter(`Food Provided for` > 0 & `Food Provided for` < 100) %>%
+  filter(`Clothing Items` > 0 ) %>%
+  mutate(mean_clothes = `Clothing Items`/`Food Provided for`) %>%
+  filter(Date > as.Date("1/1/2000",format = "%m/%d/%Y" )) %>%
+  filter(Date < as.Date("9/11/2019",format = "%m/%d/%Y" ))
+
+ggplot(averg_clothes, aes(Date,mean_clothes,)) +
+  geom_point() + 
+  geom_smooth()
+
+mean(averg_clothes$mean_clothes)
+
+```
+
+Similarly as the analysis for "Food pounds" variable, most people came to get roughtly the same average items of clothes for one person (~4 items). This information is useful to UMD for future preparation of clothing items.
+
+
+
+
+
+
+
+
+
