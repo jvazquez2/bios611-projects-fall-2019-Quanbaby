@@ -159,27 +159,142 @@ mydata_sort %>%
   ggplot(aes(x=Date, y=finance_total)) + 
   geom_point()
 
-# 2. People (family) coming most frequently and two specific families.
-freq = mydata_sort %>%
+# 2. People (family) coming most frequently/recently and some specific families.
+
+# Who came most often.
+mydata_sort %>%
   group_by(`Client File Number`) %>%
-  tally() %>%
+  summarise(n = n()) %>%
   arrange(desc(n))
 
-mydata_sort %>%
+client3502 = mydata_sort %>%
   filter(`Client File Number`==3502) %>%
-  arrange(desc(Date))
-mydata_sort %>%
-  filter(`Client File Number`==805) %>%
-  arrange(desc(Date))
+  arrange(Date) 
+ggplot(client3502, aes(x=Date,y=1)) + 
+  geom_point()
 
-# families coming recently
+client3502_interval = client3502$Date[-1] - client3502$Date[-length(client3502$Date)]
+plot(x=1:length(client3502_interval), y=client3502_interval)
+# plot(x=1:(length(client3502_interval)-1), y=client3502_interval[-1])
+# remove the first point which was an outlier
+
+client805 = mydata_sort %>%
+  filter(`Client File Number`==805) %>%
+  filter(Date >= as.Date("1/1/2000",format = "%m/%d/%Y" )) %>%
+  arrange(Date)
+ggplot(client805, aes(x=Date,y=1)) + 
+  geom_point()
+
+client805_interval = client805$Date[-1] - client805$Date[-length(client805$Date)]
+plot(x=1:(length(client805_interval)), y=client805_interval)
+
+# Who came most recently.
 mydata_sort %>%
   arrange(desc(Date)) %>%
   filter(Date <= as.Date("09/11/2019",format = "%m/%d/%Y" ))
 
-mydata_sort %>%
+client814 = mydata_sort %>%
   filter(`Client File Number`==814) %>%
-  arrange(desc(Date))
+  arrange(Date)
+ggplot(client814, aes(x=Date,y=1)) + 
+  geom_point()
+
+client814_interval = client814$Date[-1] - client814$Date[-length(client814$Date)]
+plot(x=1:(length(client814_interval)), y=client814_interval)
+
+
+## 3. Find
+### (1) whom have contributed to UMD financially:
+
+mydata_sort %>%
+  arrange(`Payer of Support`) %>%
+  filter(is.na(`Payer of Support`)==F) %>%
+  group_by(`Payer of Support`) %>%
+  summarise(n = n())
+
+
+### (2) what type of bills people have to pay: 
+
+mydata_sort %>%
+  arrange(`Type of Bill Paid`) %>%
+  filter(is.na(`Type of Bill Paid`)==F) %>%
+  # case insensitive
+  group_by(Category = stringi::stri_trans_totitle(`Type of Bill Paid`)) %>%
+  summarise(n = n())
+
+## 4. Show how the number of people that food provided for affects the needs of other help (If it does).
+
+### Food pounds V.S. Food Provided for:
+mydata_sort %>%
+  filter(`Food Provided for` > 0) %>%
+  filter(`Food Pounds` > 0 ) %>%
+  filter(`Food Pounds` != max(`Food Pounds`)) %>%
+  ggplot(aes(x=`Food Provided for`,y=`Food Pounds`)) +
+  geom_point()
+
+# remove the outliers
+mydata_sort %>%
+  filter(`Food Provided for` > 0 & `Food Provided for` < 200) %>%
+  filter(`Food Pounds` > 0 & `Food Pounds` < 1000) %>%
+  filter(`Food Pounds` != max(`Food Pounds`)) %>%
+  ggplot(aes(x=`Food Provided for`,y=`Food Pounds`)) +
+  geom_point() 
+
+## Average pounds of food per person per visit. 
+# The average pounds of food that one person needs at a time.
+averg_food = mydata_sort %>%
+  select(Date,`Food Pounds`,`Food Provided for`) %>%
+  filter(`Food Provided for` > 0 ) %>%
+  filter(`Food Pounds` > 0 ) %>%
+  filter(`Food Pounds` != max(`Food Pounds`)) %>%
+  mutate(mean_food = `Food Pounds`/`Food Provided for`) %>%
+  filter(mean_food < 500) %>%
+  filter(Date > as.Date("1/1/2000",format = "%m/%d/%Y" )) %>%
+  filter(Date < as.Date("9/11/2019",format = "%m/%d/%Y" ))
+ggplot(averg_food, aes(Date,mean_food,)) +
+  geom_point() + 
+  geom_smooth()
+
+mean(averg_food$mean_food)
+
+
+### Clothing Items V.S. Food Provided for:
+mydata_sort %>%
+  filter(`Clothing Items` > 0) %>%
+  filter(`Food Provided for` > 0 ) %>%
+  ggplot(aes(x=`Food Provided for`,y=`Clothing Items`)) +
+  geom_point()
+
+
+mydata_sort %>%
+  filter(`Clothing Items` > 0) %>%
+  filter(`Food Provided for` > 0 & `Food Provided for` < 100) %>%
+  ggplot(aes(x=`Food Provided for`,y=`Clothing Items`)) +
+  geom_point()
+
+
+## Average items of clothing per person per visit. 
+averg_clothes = mydata_sort %>%
+  select(Date,`Clothing Items`,`Food Provided for`) %>%
+  filter(`Food Provided for` > 0 & `Food Provided for` < 100) %>%
+  filter(`Clothing Items` > 0 ) %>%
+  mutate(mean_clothes = `Clothing Items`/`Food Provided for`) %>%
+  filter(Date > as.Date("1/1/2000",format = "%m/%d/%Y" )) %>%
+  filter(Date < as.Date("9/11/2019",format = "%m/%d/%Y" ))
+
+ggplot(averg_clothes, aes(Date,mean_clothes,)) +
+  geom_point() + 
+  geom_smooth()
+
+mean(averg_clothes$mean_clothes)
+
+
+
+
+
+
+
+
 
 
 
