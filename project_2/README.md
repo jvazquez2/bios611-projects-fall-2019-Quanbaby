@@ -30,6 +30,7 @@ Data provided by UMD (https://raw.githubusercontent.com/biodatascience/datasci61
 ## The interactivity
 For each of the question I mentioned before, people could choose what variables they are interested in or which clients they want to learn more about.
 
-
+## Results
+https://quanbaby.shinyapps.io/project_2/
 
 
