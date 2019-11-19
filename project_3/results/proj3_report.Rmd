@@ -194,7 +194,7 @@ From the scatter plot we can see that people with more insurance covered tended 
 
 First we create variables to denote the changes after clients staying in the shelter for a while. They are differences about income, insurance, noncash services and disabilities. Then we create a score to use the one numerical value representing the level of change of each client's living condition. The formula is given below:
 
-Score = $0.0004 \times$ Income diff $+ 0.4 \times$ Insurance diff $+ 0.4 \times$ Noncash diff $- 0.2 \times$ Disability diff
+$$ \text{Score} = 0.0004 \times \text{Income diff} + 0.4 \times \text{Insurance diff} + 0.4 \times \text{Noncash diff} - 0.2 \times \text{Disability diff} $$
 
 The reason we give "Income diff" weight $0.0004$ is that the values of income difference are around ~1000. This weight may avoid the case that this variable is the dominant one amoung the four variables.
 
@@ -207,6 +207,11 @@ ggplot(client_diff %>% drop_na(Score),
   geom_density() + 
   labs(title = "Density for Score")
 ```
+
+
+# Conclusion
+
+In this project, we first got some summary statistics about the clients went to the shelters. Then we got some information regarding of who came most often and who stayed in the shelter for the longest time. We expected that the client coming most often will appear some times in the future. After that, our main focus is the days people spent in the shelter. We visualized the density of staying days and then fitted a model to describe any potential factors affecting it. Since the decision of staying or leaving is really objective, the model performed not well as expected. But it's still helpful for some analysis. Finally, we created a score to represent the living conditions changed after staying in the shelter for a while. Generally speaking, the clients' lives didn't change much, with mean value of the score $0.098$ and ~$20\%$ clients got a better life. 
 
 
 
