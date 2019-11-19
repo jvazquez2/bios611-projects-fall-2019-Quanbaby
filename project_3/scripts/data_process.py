@@ -69,9 +69,9 @@ client2['Time Spent (days)'] = a
 
 # Calculate the total income at entry and exit for each client
 
-income_entry_sum = pd.DataFrame(income_entry.groupby('Client ID')['Client ID', 'Monthly Amount (Entry)'].sum())
+income_entry_sum = income_entry.groupby('Client ID')['Monthly Amount (Entry)'].apply(lambda x: x.sum()).reset_index(name='Monthly Amount (Entry)')
 income_entry_sum.fillna(0, inplace = True)
-income_exit_sum = pd.DataFrame(income_exit.groupby('Client ID')['Client ID', 'Monthly Amount (Exit)'].sum())
+income_exit_sum = income_exit.groupby('Client ID')['Monthly Amount (Exit)'].apply(lambda x: x.sum()).reset_index(name='Monthly Amount (Exit)')
 income_exit_sum.fillna(0, inplace = True)
 
 # Calculate numbers of insurances each client had at entry and exit
@@ -211,6 +211,7 @@ sns.set(font_scale=1.0)
 heatmap = sns.heatmap(correlation_map, cbar=True, annot=True, square=True, fmt='.2f', yticklabels=columns.values, xticklabels=columns.values)
 
 figure = heatmap.get_figure()
+figure.set_size_inches(15, 15)
 figure.savefig('../results/heatmap.png')
 
 # Specify our x and y
