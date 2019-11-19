@@ -1,0 +1,216 @@
+---
+title: "Project 3"
+author: "Quan Sun"
+output: html_document
+---
+
+# Background and data source
+
+These datasets are from the shelter side of Urban Ministries of Durham (UMD) who connects with the community to end homelessness and fight poverty by offering food, shelter and a future to neighbors in need. The datasets consist of 16 tables, including information about clients upon entry to and exit from the shelter, such as basic demographics, income, insurance, etc.
+
+The original datasets and few generated datasets during the data processing are available here: https://github.com/datasci611/bios611-projects-fall-2019-Quanbaby/tree/master/project_3/data
+
+# Purpose of the project
+
+This project is conducted to help the shelter side of UMD better offer their amazing services to people in need. Specifically, we will focus on these questions:
+
+1. Some summary statistics about people came to the shelter.
+
+2. Specific analysis for individual client.
+
+3. Relationship between clients staying days and other factors.
+
+4. Any potential changes between entry and exit to decide whether their lives were improved.
+
+# Questions and answers
+
+## 1. Some summary statistics about people came to the shelter.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(tidyverse)
+client_final = read_tsv("/Users/quansun/Documents/GitHub/bios611-projects-fall-2019-Quanbaby/project_3/data/clients_final.tsv")
+```
+
+### (1) Summary about EE providers
+
+![](./EE_sum.png)
+
+This result shows that there were 7 different providers, but it seems that only the first one (which is also the major one) is still open from the names of other providers.
+
+### (2) Summary about clients genders
+
+![](./gender_sum.png)
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.align='center'}
+ggplot(client_final %>% select(`Client Gender`) %>% drop_na(), mapping = aes(`Client Gender`)) + 
+  geom_bar() + 
+  labs(title = "Barplot for clients gender")
+```
+
+From both the summary statistics and plot we know that most clients came to the shelter were male (~80%). There were also few trans females clients.
+
+### (3) Summary about clients ages
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.align='center'}
+ggplot(client_final, mapping = aes(`Client Age at Entry`)) + 
+  geom_density() + 
+  labs(title = "Density for client age at entry")
+```
+
+From the plot we know most of the clients were ~50 years old, but there was a peak at ~22 years old. 
+
+### (4) Summary about clients races
+
+![](./race_sum.png)
+
+Most of the clients were black and white, with few minorities. 
+
+### (5) Summary about clients ethnicities
+
+![](./ethnicity_sum.png)
+
+Most of the clients were non_Hispanic/non_Latino, with few Hispanic/Latino.
+
+### (6) Summary about clients veteran status
+
+![](./vetstatus_sum.png)
+
+```{r,echo=FALSE, message=FALSE, warning=FALSE, fig.align='center' }
+ggplot(client_final %>% select(`Client Veteran Status`) %>% drop_na(), mapping = aes(`Client Veteran Status`)) + 
+  geom_bar() + 
+  labs(title = "Barplot for clients veteran status")
+```
+
+About ~10% of the clients were veterans.
+
+### (7) Summary about reasons people left.
+
+![](./reasons.png)
+
+Most people left because they would gonna stay with friends for temporary tenure. 
+
+## 2. Specific analysis for individual client.
+### (1) Who came most often.
+
+![](./most.png)
+
+CLient 320781 came most frequently with 37 times, following by client 344697 with 36 times.
+
+### (2) Who stayed the longest.
+
+![](./longest.png)
+
+Cient 231922 spent 894 days (more than 2 years) in one visit.
+
+## 3. Relationship between clients staying days and other factors.
+### (1) Density of clients staying days.
+
+```{r,echo=FALSE, message=FALSE, warning=FALSE, fig.align='center'}
+ggplot(client_final, mapping = aes(`Time Spent (days)`)) + 
+  geom_density() + 
+  labs(title = "Density for days client spent in shelter")
+```
+
+From the above plot, most people stayed for less than 250 days. To better see the details, we zoom in the plot in the (0, 250) interval.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.align='center'}
+ggplot(client_final %>% filter(`Time Spent (days)`<250), mapping = aes(`Time Spent (days)`)) + 
+  geom_density() + 
+  labs(title = "Density for days client spent in shelter (zoomed in)")
+```
+
+We can see from the plot that most people stayed for quite a short time (~10 days). It's consistent with the most common reason that people left: stay with friend temporarily. Some clients may came to the shelter for temporary housing, and then would move out after contacting a friend who would house him/her.
+
+
+### (2) Fit a regression model for clients staying days
+
+We then want fit a regression model where the response variable is client staying days. The first question is about the explanotory varialbes. Potential explanotory variables are client age at entry, client gender, client race, client veteran status, client income at entry, client insurance types at entry, clinet noncash services at entry, client disabilities at entry. We first convert the catogorical data to numricals.
+
+#### a. Converting data to numerical
+The catogorical data in this context are the variables shown above except for age and income. The original datasets recording variables such as insurance were divided by different types of insurance, for example. Therefore we should count the number of insurance types for each visit. Repeat the same thing for noncash services and disabilities, also do similar thing for client income by summing up the values of different income sources. Then those variables are numerical.
+
+Then we try to deal with gender, veteran status and race. We use dummy variable, set female equals 0 and male equals 1. Similarly give veteran status Yes value 1 and No value 0. As to the race, since the majority were black and white, we gathered other races in the same group, and using two-dimensional dummy variables to represent it. Let White be (0,0), black be (0,1) and others be (1,0). Till now, all the variables are ready. 
+
+#### b. Decide which varaibles should be considered
+Then the next question is, should we use all the variables above in the model? Thus we calculate the pearson correlation matrix and select the highest 6 variables correlated with the response variable. The heatmap of correlation matrix is shown below:
+
+![](./heatmap.png)
+
+Therefore, we choose client age at entry, noncash services at entry, client primary race, client primary race2, client veteran status and client gender as model variables.
+
+#### c. Fit the model
+We use OLS function in statsmodels.api package in python to fit a regression model. The model summary result is shown below:
+
+![](./model.png)
+
+The model R square is 0.277 which means the model is relatively bad. It's reasonable since the length that people wanted to stay is really subjective. It is nearly impossible to be well-fitted. But using this model, we can see in general,
+
+1. veterans tended to stay in the shelter shorter than non-veterans,
+
+2. older people tended to stay in the sheleter longer than younger people,
+
+3. Black people tended to stay in the shelter longer than white people.
+
+
+#### d. Visualization about relationships between days spent and other variables.
+##### i. Days spent vs. age/gender
+```{r,echo=FALSE, message=FALSE, warning=FALSE, fig.align='center' }
+ggplot(client_final %>% filter(`Time Spent (days)`<750),  # remove one outlier 
+       mapping = aes(x = `Client Age at Entry`, y = `Time Spent (days)`, 
+                        group = `Client Gender`, color = `Client Gender`, legend = `Client Gender`  )) + 
+  geom_violin() + 
+  theme(legend.text = element_text(size = 8), legend.position = 'bottom') + 
+  labs(title = "Violin plot for staying days and age/gender")
+```
+
+It could be seen from the plot that male consists of a large proportion of the clients, and people at about 50 years old tended to stay the longest. The peak for male is younger and higher than that for female.
+
+
+##### ii. Days spent vs. income at entry
+```{r,echo=FALSE, message=FALSE, warning=FALSE, fig.align='center' }
+ggplot(client_final,
+       mapping = aes(x = `Monthly Amount (Entry)`, y = `Time Spent (days)`)) + 
+  geom_point() + 
+  labs(title = "Scatter plot for staying days and income at entry")
+```
+
+From the scatter plot we can see that people with higher monthly income amount tended to stay shorter, which is reasonable.
+
+
+##### iii. Days spent vs. insurace
+```{r,echo=FALSE, message=FALSE, warning=FALSE, fig.align='center' }
+ggplot(client_final %>% filter(`Insurance (Entry)` < 30),
+       mapping = aes(x = `Insurance (Entry)`, y = `Time Spent (days)`)) + 
+  geom_point() + 
+  labs(title = "Scatter plot for staying days and insurance at entry")
+```
+
+From the scatter plot we can see that people with more insurance covered tended to stay shorter, which is reasonable.
+
+
+## 4. Changes between entry and exit to decide whether their lives were improved.
+
+First we create variables to denote the changes after clients staying in the shelter for a while. They are differences about income, insurance, noncash services and disabilities. Then we create a score to use the one numerical value representing the level of change of each client's living condition. The formula is given below:
+
+Score = $0.0004 \times$ Income diff $+ 0.4 \times$ Insurance diff $+ 0.4 \times$ Noncash diff $- 0.2 \times$ Disability diff
+
+The reason we give "Income diff" weight $0.0004$ is that the values of income difference are around ~1000. This weight may avoid the case that this variable is the dominant one amoung the four variables.
+
+The average score of visits are $0.098$, and $5690$ frequency visits out of $25454$ have improved. The density of score is shown as below:
+
+```{r,echo=FALSE, message=FALSE, warning=FALSE, fig.align='center'}
+client_diff = read_tsv("../data/clients_diff.tsv")
+ggplot(client_diff %>% drop_na(Score),
+       mapping = aes(Score )) + 
+  geom_density() + 
+  labs(title = "Density for Score")
+```
+
+
+
+
+
+
+
