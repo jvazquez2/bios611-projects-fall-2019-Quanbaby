@@ -78,7 +78,7 @@ ggsave('../results/score.png', height=4, width=6)
 
 
 # Generate HTML 
-rmarkdown::render("proj3_report.Rmd", "html_document")
+rmarkdown::render("../results/proj3_report.Rmd", "html_document")
 
 
 

@@ -29,7 +29,7 @@ This project is conducted to help the shelter side of UMD better offer their ama
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 library(ggplot2)
 library(tidyverse)
-client_final = read_tsv("/Users/quansun/Documents/GitHub/bios611-projects-fall-2019-Quanbaby/project_3/data/clients_final.tsv")
+client_final = read_tsv("../data/clients_final.tsv")
 ```
 
 ### (1) Summary about EE providers
