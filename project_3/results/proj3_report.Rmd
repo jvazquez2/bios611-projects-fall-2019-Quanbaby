@@ -34,13 +34,29 @@ client_final = read_tsv("/Users/quansun/Documents/GitHub/bios611-projects-fall-2
 
 ### (1) Summary about EE providers
 
-![](./EE_sum.png)
+The summary about EE providers and number of clients (frequencies) they have accepted.
+
+| EE Provider ID | Number |
+| -------------- | ------ |
+| Urban Ministries of Durham - Durham County - Singles Emergency Shelter - Private(5838) | 4319 |
+| XXXClosed2015 Urban Ministries of Durham- Durham County- Journey Entry- ESG(1970) | 721  |
+|XXXClosed2015 Urban Ministries of Durham- Durham County- Journey Forward- ESG(5694) |  65 |  
+|XXXClosed2015 Urban Ministries of Durham- Durham County- Journey Outreach- ESG(4515) | 51 |
+|XXXClosed2015 Urban Ministries of Durham- Durham County- Journey Recovery- ESG(1932) | 67 |
+|XXXClosed2015 Urban Ministries of Durham- Durham County- Journey Tech- ESG(4516) | 61 |
+|XXXClosed2015 Urban Ministries of Durham- Durham County- Journey Veterans- ESG(5069) | 15 |
 
 This result shows that there were 7 different providers, but it seems that only the first one (which is also the major one) is still open from the names of other providers.
 
 ### (2) Summary about clients genders
 
-![](./gender_sum.png)
+The summary about clients' genders and number of clients (frequencies) in each gender.
+
+| Client Gender | Number |
+| ------------- | ------ |
+| Female | 1290 |
+| Male | 3989 |
+|Trans Female (MTF or Male to Female) | 17 |
 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.align='center'}
@@ -53,6 +69,7 @@ From both the summary statistics and plot we know that most clients came to the 
 
 ### (3) Summary about clients ages
 
+
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.align='center'}
 ggplot(client_final, mapping = aes(`Client Age at Entry`)) + 
   geom_density() + 
@@ -63,19 +80,31 @@ From the plot we know most of the clients were ~50 years old, but there was a pe
 
 ### (4) Summary about clients races
 
-![](./race_sum.png)
+The summary about clients' races and number of clients (frequencies) in each race.
+
+| Client Primary Race | Number |
+| ------------------- | ------ |
+| American Indian or Alaska Native (HUD) | 90 |
+| Asian (HUD) | 3 |
+| Black or African American (HUD) | 864 |
+| Client doesn't know (HUD) | 4 |
+| Client refused (HUD) | 5 |
+| Data not collected (HUD) | 6 |
+| Native Hawaiian or Other Pacific Islander (HUD) | 1 |
+| White (HUD) | 1313 |
 
 Most of the clients were black and white, with few minorities. 
 
-### (5) Summary about clients ethnicities
 
-![](./ethnicity_sum.png)
+### (5) Summary about clients veteran status
 
-Most of the clients were non_Hispanic/non_Latino, with few Hispanic/Latino.
+The summary about clients' veteran status and number of clients (frequencies) in each catogory.
 
-### (6) Summary about clients veteran status
-
-![](./vetstatus_sum.png)
+| Client Veteran Status | Number |
+| --------------------- | ------ |
+| Data not collected (HUD) | 7 |
+| No (HUD) | 4724 |
+| Yes (HUD) | 558 |
 
 ```{r,echo=FALSE, message=FALSE, warning=FALSE, fig.align='center' }
 ggplot(client_final %>% select(`Client Veteran Status`) %>% drop_na(), mapping = aes(`Client Veteran Status`)) + 
@@ -85,22 +114,67 @@ ggplot(client_final %>% select(`Client Veteran Status`) %>% drop_na(), mapping =
 
 About ~10% of the clients were veterans.
 
-### (7) Summary about reasons people left.
+### (6) Summary about reasons people left.
 
-![](./reasons.png)
+The summary about clients' left reasons (destinations) and number of clients (frequencies) in each catogory.
+
+| Destinations | Number |
+| ------------ | ------ |
+| Staying or living with friends, temporary tenure | 1443 |
+| No exit interview completed | 985 |
+| Staying or living with family, temporary tenure | 840 |
+| Data not collected | 313 |
+| Rental by client, no ongoing housing subsidy | 292 |
+| Other | 278 |
+| Staying or living with family, permanent tenure | 166 |
+| Hospital or other residential non-psychiatric medical facility | 164 |
+| Rental by client, with other ongoing housing subsidy | 157 |
+| Place not meant for habitation | 147 |
+| Staying or living with friends, permanent tenure | 84 |
+| Jail, prison or juvenile detention facility | 49 |
+| Rental by client, with RRH or equivalent subsidy | 45 |
+| Psychiatric hospital or other psychiatric facility | 40 |
+| Emergency shelter, incl. hotel/motel paid for w/ ES voucher, or RHY-funded Host Home shelters | 35 |
+| Permanent housing (other than RRH) for formerly homeless persons | 33 |
+| Transitional housing for homeless persons (including homeless youth) | 30 |
+| Hotel or motel paid for without emergency shelter voucher | 19 |
+| Substance abuse treatment facility or detox center | 17 |
+| Rental by client, with VASH housing subsidy | 15 |
+| Client doesn't know | 9 |
+| Residential project or halfway house with no homeless criteria | 8 |
+| Owned by client, no ongoing housing subsidy | 5 |
+| Long-term care facility or nursing home | 5 |
+| Client refused | 4 |
+| Deceased | 3 |
+| Safe Haven | 3 |
+| Owned by client, with ongoing housing subsidy | 2 |
+| Rental by client in a public housing unit | 1 |
 
 Most people left because they would gonna stay with friends for temporary tenure. 
 
 ## 2. Specific analysis for individual client.
 ### (1) Who came most often.
 
-![](./most.png)
+| Client ID | Frequencies |
+| --------- | ----------- |
+| 320781 | 37 |
+| 344697 | 36 |
+| 2054 | 22 |
+| 419124 | 18 |
+| 346065 | 18 |
 
 CLient 320781 came most frequently with 37 times, following by client 344697 with 36 times.
 
 ### (2) Who stayed the longest.
 
-![](./longest.png)
+| Client ID | Time Spent (days) |
+| --------- | ----------------- |
+| 231922 | 894 |
+| 10107 | 574 |
+| 224787 | 550 |
+| 318721 | 515 |
+| 318722 | 515 |
+
 
 Cient 231922 spent 894 days (more than 2 years) in one visit.
 

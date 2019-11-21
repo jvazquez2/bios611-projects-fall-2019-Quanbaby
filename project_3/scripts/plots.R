@@ -77,7 +77,8 @@ ggplot(client_diff %>% drop_na(Score),
 ggsave('../results/score.png', height=4, width=6)
 
 
-
+# Generate HTML 
+rmarkdown::render("proj3_report.Rmd", "html_document")
 
 
 
