@@ -1,0 +1,45 @@
+Provide feedback about the following topics:
+
+1. Is the project organized modularly, with Make as the workflow manager?
+
+Hi Quan! On your project I did see that you know what you have and what you're missing, thats really good. I did see that on your Makefile you have everything in one command but thats not very efficient I would say. When you're making the Make file you should have one chunck for the docker build if you need to build one. I just used one that was already made with python and R, look in my repository for you to see. 
+
+2. Does the project use both Python (Pandas specifically) and R (Tidyverse specifically) scripts?
+
+You used both pandas and R in your scripts.
+
+3. Is Docker used to define execution environments appropriately?
+
+You built your own docker appropiately. Good job! Just remember that you can just call a premade docker.
+
+4. Are the plots appropriate for the data types, the hypotheses being tested, and the points being communicated?
+
+You included a correlation matrix plot but I don't think you should include gener, veteran statis nor gender. These variables are indicators (categorical in some cases), not ones that are continuous. If you want to compare catgorical variables you should use a chi-square to check if they're independent or not.
+
+5. How can the project be organized or documented more clearly?
+
+You did a good job at organizing your repository!
+
+6. Is the purpose of the project communicated clearly?
+
+You mentioned the research questions but you did not mention why these are important.
+
+7. Does the purpose of the project make sense from the client’s point of view? How could the project better serve the client?
+
+I think the project makes sense, a basic report with summary statistics and other information that help inform UMD make better decisions when dealing with the homeless. I do think the report needs work, needs to be organized better and have better formating. Everything is different sizes and fonts. 
+
+8. Is the source of the data made clear? (Remember that this project can be part of your public portfolios, so people not familiar with UMD may see it).
+
+Data source information is included in the report.
+
+9. Is the interpretation of figures clearly explained?
+
+The figures had one sentence descriptions whereas the tables almost none.
+
+10. Is the purpose and interpretation of analysis steps clearly communicated?
+
+I would suggest adding a paragraph at the begginign why these research questions are important and how they will be answered. You kinda do it with the flow of the report but is not very clear.
+
+11. Are overall take-home messages clearly communicated?
+
+I would say so. Great job!
